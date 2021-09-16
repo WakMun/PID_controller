@@ -80,7 +80,7 @@ After this differntial component, was tuned. I started with the value of 0.5 and
 
 Lastly, the integral component was tuned. In fact, the car drove perfectly even with zero value of this component. It seems simulator does not simulate the systematic bias.
 
-in summary it was a twiddle algorithm implemented manually where I tuned each parameter individually on basis of look and feel of the cars driving before moving on to the next parameter. Here are the final value of parameters that I reached.
+In summary, I followed the approach of twiddle algorithm manually. Each parameter was tuned individually on basis of look and feel of the car's driving before moving on to the next parameter. Here are the final value of parameters that I reached.
 
 ## Final Parameters
 
