@@ -1,9 +1,25 @@
-# CarND-Controls-PID
-Self-Driving Car Engineer Nanodegree Program
+# Controlling the Steering Angle
+
+# Overview
+In this project of Self-Driving Car Engineer Nanodegree Program from Udacity the main goal is to implement a 
+simple [PID controller](https://en.wikipedia.org/wiki/PID_controller) to control a car driving autonomously around a race track in Udacity's simulator.
+
+The core idea here is that the path has been already been planned for an autonomous car, a controller takes this path as
+an input and decides upon the angle at which the car is to be steered so as to minimize the error from the decided path.
+Due to inertia, imprecise motion the car and noisy measurements it is not possible to predict and control the position of the car with 
+certainity. Hence there is always a deviation from the decided path. The job of the controller is to minimize this deviation without scarificing 
+the speed. 
+
+In this project, the [udacity's simulator](https://github.com/udacity/self-driving-car-sim/releases) outputs the cross-track error that 
+is fed to the PID control through a [uWebSockets](https://github.com/uNetworking/uWebSockets) WebSocket implementation. In response, the pid control decides the 
+steering angle in the range [1,-1]. This is in physical terms corresponds to 25 degrees towards left or right. This command is fed to the simulator to steer the 
+car in desired direction. This is done in a continuous loop. The second control parameter, the throttle, which determines the speed of the car, is fixed at 0.3.
+Original repo from Udacity can be found [here](https://github.com/udacity/CarND-PID-Control-Project).
+
 
 ---
 
-## Dependencies
+# Dependencies
 
 * cmake >= 3.5
  * All OSes: [click here for installation instructions](https://cmake.org/install/)
@@ -26,9 +42,8 @@ Self-Driving Car Engineer Nanodegree Program
     Some function signatures have changed in v0.14.x. See [this PR](https://github.com/udacity/CarND-MPC-Project/pull/3) for more details.
 * Simulator. You can download these from the [project intro page](https://github.com/udacity/self-driving-car-sim/releases) in the classroom.
 
-Fellow students have put together a guide to Windows set-up for the project [here](https://s3-us-west-1.amazonaws.com/udacity-selfdrivingcar/files/Kidnapped_Vehicle_Windows_Setup.pdf) if the environment you have set up for the Sensor Fusion projects does not work for this project. There's also an experimental patch for windows in this [PR](https://github.com/udacity/CarND-PID-Control-Project/pull/3).
 
-## Basic Build Instructions
+# Basic Build Instructions
 
 1. Clone this repo.
 2. Make a build directory: `mkdir build && cd build`
@@ -37,62 +52,40 @@ Fellow students have put together a guide to Windows set-up for the project [her
 
 Tips for setting up your environment can be found [here](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/23d376c7-0195-4276-bdf0-e02f1f3c665d)
 
-## Editor Settings
+---
 
-We've purposefully kept editor configuration files out of this repo in order to
-keep it as simple and environment agnostic as possible. However, we recommend
-using the following settings:
+# Results
 
-* indent using spaces
-* set tab width to 2 spaces (keeps the matrices in source code aligned)
 
-## Code Style
+## Video Output
+The final video output where the controller controls the car along the track can be seen [here](./videos/Tuned.mp4).
 
-Please (do your best to) stick to [Google's C++ style guide](https://google.github.io/styleguide/cppguide.html).
+## Effect of each of the P, I, D components 
 
-## Project Instructions and Rubric
+- The **proportional** component of the controller tries to steer the car toward the center line (against the cross-track error). This is the main component that tries to reduce the error while other components provide the damping. When propotional component is present alone, the car overshoots the desired trajectory and never settles as can be seen in the video: [./videos/Only_P.mp4](./videos/Only_P.mp4). In this case car keeps osciallating to and fro on the desired path. Specially on the curves the deviation becomes so big that car steers almost perpendicular to the road and overshoots to go out of the road on the opposite side.
 
-Note: regardless of the changes you make, your project must be buildable using
-cmake and make!
+- The **differential** component helps to dampen out the propotional component by reducing its response if the error is decreasing. On the other hand, if the error is increasing it enhances the response of propotional component. This has an effect of trend to overshoot the center line by smoothing the approach to it. An example video where this component is used alone is [./videos/Only_D.mp4](./videos/Only_D.mp4).
 
-More information is only accessible by people who are already enrolled in Term 2
-of CarND. If you are enrolled, see [the project page](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/f1820894-8322-4bb3-81aa-b26b3c6dcbaf/lessons/e8235395-22dd-4b87-88e0-d108c5e5bbf4/concepts/6a4d8d42-6a04-4aa6-b284-1697c0fd6562)
-for instructions and the project rubric.
+- The **integral** component is designed to remove the systematic bias that can can prevent the error to be completely eliminated. If used alone, it makes the car to 
+go in circles. In the case of the simulator, no bias is present. An example video where this component is used alone is [./videos/Only_I.mp4](./videos/Only_I.mp4).
 
-## Hints!
 
-* You don't have to follow this directory structure, but if you do, your work
-  will span all of the .cpp files here. Keep an eye out for TODOs.
+## Tuning
+I chose to tune the PID parameters by hand juding by look and feel of the car's driving pattern. 
+I took an iterative approach, starting with the values from lecture. 
+First I tuned the P portion as it is responsible for the biggest chunk of the response. 
+I started with 0.3 and observed major ossciallations even when driving on the straight segments. So it was decreased successively till the car was able to drive on the straight segments remaining within the bounds of lane markings. 
 
-## Call for IDE Profiles Pull Requests
+After this differntial component, was tuned. I started with the value of 0.5 and kept increasing it till the overshoot kept decreasing. Once the overshoot start increasing I left it to its old value.
 
-Help your fellow students!
+Lastly integral component was tuned. In fact, the car drove perfectly even with zero value of this component. It seems simulator does not simulate the systematic bias. 
 
-We decided to create Makefiles with cmake to keep this project as platform
-agnostic as possible. Similarly, we omitted IDE profiles in order to we ensure
-that students don't feel pressured to use one IDE or another.
+## Final Parameters
 
-However! I'd love to help people get up and running with their IDEs of choice.
-If you've created a profile for an IDE that you think other students would
-appreciate, we'd love to have you add the requisite profile files and
-instructions to ide_profiles/. For example if you wanted to add a VS Code
-profile, you'd add:
+| Parameter|Value | 
+|----------|------|
+| P        |  0.15|
+| I        |0.0003|
+| D        |   2.6|
 
-* /ide_profiles/vscode/.vscode
-* /ide_profiles/vscode/README.md
-
-The README should explain what the profile does, how to take advantage of it,
-and how to install it.
-
-Frankly, I've never been involved in a project with multiple IDE profiles
-before. I believe the best way to handle this would be to keep them out of the
-repo root to avoid clutter. My expectation is that most profiles will include
-instructions to copy files to a new location to get picked up by the IDE, but
-that's just a guess.
-
-One last note here: regardless of the IDE used, every submitted project must
-still be compilable with cmake and make./
-
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
-
+ 
