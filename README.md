@@ -70,15 +70,17 @@ The final video output where the controller controls the car along the track can
 go in circles. In the case of the simulator, no bias is present. An example video where this component is used alone is [./videos/Only_I.mp4](./videos/Only_I.mp4).
 
 
-## Tuning
+## Tuning hyperparameters.
 I chose to tune the PID parameters by hand juding by look and feel of the car's driving pattern. 
 I took an iterative approach, starting with the values from lecture. 
 First I tuned the P portion as it is responsible for the biggest chunk of the response. 
 I started with 0.3 and observed major ossciallations even when driving on the straight segments. So it was decreased successively till the car was able to drive on the straight segments remaining within the bounds of lane markings. 
 
-After this differntial component, was tuned. I started with the value of 0.5 and kept increasing it till the overshoot kept decreasing. Once the overshoot start increasing I left it to its old value.
+After this differntial component, was tuned. I started with the value of 0.5 and kept increasing it till the overshoot kept decreasing. Once the overshoot started increasing, I left it to its old value.
 
-Lastly integral component was tuned. In fact, the car drove perfectly even with zero value of this component. It seems simulator does not simulate the systematic bias. 
+Lastly, the integral component was tuned. In fact, the car drove perfectly even with zero value of this component. It seems simulator does not simulate the systematic bias.
+
+in summary it was a twiddle algorithm implemented manually where I tuned each parameter individually on basis of look and feel of the cars driving before moving on to the next parameter. Here are the final value of parameters that I reached.
 
 ## Final Parameters
 
