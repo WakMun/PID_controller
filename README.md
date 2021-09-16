@@ -1,4 +1,4 @@
-# Controlling the Steering Angle
+# PID Controller for Steering Angle Control
 
 # Overview
 In this project of Self-Driving Car Engineer Nanodegree Program from Udacity the main goal is to implement a 
